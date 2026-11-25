@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SkyCast — Live Weather</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Optional modern favicon as inline SVG -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌤️</text></svg>" />
+</head>
+<body class="theme-clear">
+  <div class="background-decorations" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <div class="app-container">
+    <!-- Top Bar: Brand, Time & Unit Switcher -->
+    <header class="app-header glass-panel">
+      <div class="brand">
+        <span class="brand-icon">⚡</span>
+        <div>
+          <h1 class="brand-title">SkyCast</h1>
+          <p class="brand-subtitle" id="current-date-time">Loading live clock...</p>
+        </div>
+      </div>
+
+      <!-- Unit Toggle Button -->
+      <div class="unit-toggle-wrapper">
+        <div class="unit-toggle" role="group" aria-label="Temperature unit selection">
+          <button id="unit-c" class="unit-btn active" type="button" aria-pressed="true">°C</button>
+          <button id="unit-f" class="unit-btn" type="button" aria-pressed="false">°F</button>
+          <span class="unit-slider" aria-hidden="true"></span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Search & Location Row -->
+    <section class="search-section" aria-label="Search city or use current location">
+      <form id="search-form" class="search-form" onsubmit="return false;">
+        <div class="search-input-wrapper glass-panel">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input
+            type="text"
+            id="city-input"
+            class="city-input"
+            placeholder="Search any city (e.g. Kolkata, Tokyo, Paris)..."
+            autocomplete="off"
+            spellcheck="false"
+            required
+          />
+          <button type="submit" class="search-submit-btn" title="Search">
+            <span>Search</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </div>
+
+        <button type="button" id="geo-btn" class="geo-btn glass-panel" title="Use current location">
+          <svg class="geo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+          </svg>
+          <span class="geo-text">My Location</span>
+        </button>
+      </form>
+    </section>
+
+    <!-- Error / Alert Banner -->
+    <div id="error-banner" class="error-banner glass-panel hidden" role="alert">
+      <div class="error-content">
+        <span class="error-icon">⚠️</span>
+        <span id="error-message">City not found. Please try again.</span>
+      </div>
+      <button id="error-close-btn" class="error-close-btn" aria-label="Dismiss error">&times;</button>
+    </div>
+
+    <!-- Weather Main Display Container -->
+    <main id="weather-display" class="weather-display">
+      <!-- Current Weather Hero Card -->
+      <section class="current-weather-card glass-panel" aria-label="Current Weather">
+        <div class="current-header">
+          <div class="location-badge">
+            <svg class="location-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            <div>
+              <h2 id="current-city" class="city-name">Kolkata</h2>
+              <span id="current-country" class="country-name">India</span>
+            </div>
+          </div>
+          <div id="condition-pill" class="condition-pill">
+            <span id="current-weather-desc">Clear Sky</span>
+          </div>
+        </div>
+
+        <div class="current-hero">
+          <div class="temp-group">
+            <span id="current-temp" class="hero-temp">28</span>
+            <span id="temp-unit-symbol" class="hero-unit">°C</span>
+          </div>
+          <div class="weather-visual">
+            <div id="current-weather-emoji" class="hero-emoji" role="img" aria-label="Weather condition emoji">☀️</div>
+          </div>
+        </div>
+
+        <!-- Metrics Grid -->
+        <div class="metrics-grid">
+          <div class="metric-item glass-inset">
+            <span class="metric-icon">💧</span>
+            <div class="metric-info">
+              <span class="metric-label">Humidity</span>
+              <span id="humidity-val" class="metric-val">65%</span>
+            </div>
+          </div>
+
+          <div class="metric-item glass-inset">
+            <span class="metric-icon">💨</span>
+            <div class="metric-info">
+              <span class="metric-label">Wind Speed</span>
+              <span id="wind-val" class="metric-val">12 km/h</span>
+            </div>
+          </div>
+
+          <div class="metric-item glass-inset">
+            <span class="metric-icon">🌡️</span>
+            <div class="metric-info">
+              <span class="metric-label">High / Low</span>
+              <span id="range-val" class="metric-val">30° / 19°</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5-Day Forecast Card -->
+      <section class="forecast-section glass-panel" aria-label="5-Day Forecast">
+        <div class="forecast-header">
+          <h3 class="forecast-title">5-Day Forecast</h3>
+          <span class="forecast-subtitle">Next upcoming days</span>
+        </div>
+        <div id="forecast-cards" class="forecast-grid">
+          <!-- Dynamically populated forecast tiles -->
+        </div>
+      </section>
+    </main>
+
+    <!-- Loading State Overlay -->
+    <div id="loading-overlay" class="loading-overlay glass-panel hidden" aria-live="polite">
+      <div class="spinner"></div>
+      <p class="loading-text">Fetching latest weather data...</p>
+    </div>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>Powered by <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo API</a> • Fast & Minimal Weather Demo</p>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
